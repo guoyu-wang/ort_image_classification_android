@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readModel(): ByteArray {
-        return resources.openRawResource(R.raw.mobilenet_v1_float).readBytes();
+        return resources.openRawResource(R.raw.mobilenet_v2).readBytes();
     }
 
     private fun readLabels(): List<String> {

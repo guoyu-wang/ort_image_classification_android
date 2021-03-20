@@ -5,32 +5,28 @@ import androidx.camera.core.ImageProxy
 import java.io.ByteArrayOutputStream
 import java.nio.FloatBuffer
 
-const val IMAGE_MEAN: Float = 127.5f;
-const val IMAGE_STD: Float = 127.5f;
 const val DIM_BATCH_SIZE = 1;
 const val DIM_PIXEL_SIZE = 3;
 const val IMAGE_SIZE_X = 224;
 const val IMAGE_SIZE_Y = 224;
 
-// Preprocess for MobileNet V1
-fun preprocess(bitmap: Bitmap): FloatBuffer {
+fun preProcess(bitmap: Bitmap): FloatBuffer {
     val imgData = FloatBuffer.allocate(
             DIM_BATCH_SIZE
+                    * DIM_PIXEL_SIZE
                     * IMAGE_SIZE_X
-                    * IMAGE_SIZE_Y
-                    * DIM_PIXEL_SIZE)
+                    * IMAGE_SIZE_Y )
     imgData.rewind()
-
-    val bmpData = IntArray(IMAGE_SIZE_X * IMAGE_SIZE_Y)
+    val stride = IMAGE_SIZE_X * IMAGE_SIZE_Y
+    val bmpData = IntArray(stride)
     bitmap.getPixels(bmpData, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-
-    var idx: Int = 0
     for (i in 0..IMAGE_SIZE_X - 1) {
         for (j in 0..IMAGE_SIZE_Y - 1) {
-            val pixelValue = bmpData[idx++]
-            imgData.put(((pixelValue shr 16 and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
-            imgData.put(((pixelValue shr 8 and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
-            imgData.put(((pixelValue and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
+            val idx = IMAGE_SIZE_Y * i + j
+            val pixelValue = bmpData[idx]
+            imgData.put(idx, (((pixelValue shr 16 and 0xFF)/255f - 0.485f)/0.229f))
+            imgData.put(idx + stride , (((pixelValue shr 8 and 0xFF)/255f - 0.456f)/0.224f))
+            imgData.put(idx + stride * 2, (((pixelValue and 0xFF)/255f - 0.406f)/0.225f))
         }
     }
 

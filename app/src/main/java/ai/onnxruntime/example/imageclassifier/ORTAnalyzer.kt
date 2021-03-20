@@ -44,7 +44,7 @@ internal class ORTAnalyzer(
     }
 
     private fun softMax(modelResult: FloatArray): FloatArray {
-        var labelVals = modelResult.copyOf()
+        val labelVals = modelResult.copyOf()
         val max = labelVals.max()
         var sum = 0.0f
 
@@ -76,20 +76,21 @@ internal class ORTAnalyzer(
         val bitmap = rawBitmap?.rotate(image.imageInfo.rotationDegrees.toFloat())
 
         if (bitmap != null) {
-            val imgData = preprocess(bitmap)
+            val imgData = preProcess(bitmap)
             val inputName = ortSession?.inputNames?.iterator()?.next()
             var result = Result()
-            val shape = longArrayOf(1, 224, 224, 3)
+            val shape = longArrayOf(1, 3, 224, 224)
             val tensor = OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), imgData, shape)
             val startTime = SystemClock.uptimeMillis()
             try {
                 val output = ortSession?.run(Collections.singletonMap(inputName, tensor))
                 result.processTimeMs = SystemClock.uptimeMillis() - startTime
                 @Suppress("UNCHECKED_CAST")
-                val labelVals = ((output?.get(0)?.value) as Array<FloatArray>)[0]
-                result.detectedIndices = argMax(labelVals)
+                val rawOutput = ((output?.get(0)?.value) as Array<FloatArray>)[0]
+                val probabilities = softMax(rawOutput)
+                result.detectedIndices = argMax(probabilities)
                 for (idx in result.detectedIndices) {
-                    result.detectedScore.add(labelVals[idx])
+                    result.detectedScore.add(probabilities[idx])
                 }
                 output.close()
             } finally {
