@@ -12,10 +12,11 @@ const val IMAGE_SIZE_Y = 224;
 
 fun preProcess(bitmap: Bitmap): FloatBuffer {
     val imgData = FloatBuffer.allocate(
-            DIM_BATCH_SIZE
-                    * DIM_PIXEL_SIZE
-                    * IMAGE_SIZE_X
-                    * IMAGE_SIZE_Y )
+        DIM_BATCH_SIZE
+                * DIM_PIXEL_SIZE
+                * IMAGE_SIZE_X
+                * IMAGE_SIZE_Y
+    )
     imgData.rewind()
     val stride = IMAGE_SIZE_X * IMAGE_SIZE_Y
     val bmpData = IntArray(stride)
@@ -24,9 +25,9 @@ fun preProcess(bitmap: Bitmap): FloatBuffer {
         for (j in 0..IMAGE_SIZE_Y - 1) {
             val idx = IMAGE_SIZE_Y * i + j
             val pixelValue = bmpData[idx]
-            imgData.put(idx, (((pixelValue shr 16 and 0xFF)/255f - 0.485f)/0.229f))
-            imgData.put(idx + stride , (((pixelValue shr 8 and 0xFF)/255f - 0.456f)/0.224f))
-            imgData.put(idx + stride * 2, (((pixelValue and 0xFF)/255f - 0.406f)/0.225f))
+            imgData.put(idx, (((pixelValue shr 16 and 0xFF) / 255f - 0.485f) / 0.229f))
+            imgData.put(idx + stride, (((pixelValue shr 8 and 0xFF) / 255f - 0.456f) / 0.224f))
+            imgData.put(idx + stride * 2, (((pixelValue and 0xFF) / 255f - 0.406f) / 0.225f))
         }
     }
 
@@ -121,10 +122,10 @@ private fun imageToByteBuffer(image: ImageProxy, outputBuffer: ByteArray, pixelC
             imageCrop
         } else {
             Rect(
-                    imageCrop.left / 2,
-                    imageCrop.top / 2,
-                    imageCrop.right / 2,
-                    imageCrop.bottom / 2
+                imageCrop.left / 2,
+                imageCrop.top / 2,
+                imageCrop.right / 2,
+                imageCrop.bottom / 2
             )
         }
 
@@ -152,7 +153,8 @@ private fun imageToByteBuffer(image: ImageProxy, outputBuffer: ByteArray, pixelC
         for (row in 0 until planeHeight) {
             // Move buffer position to the beginning of this row
             planeBuffer.position(
-                    (row + planeCrop.top) * rowStride + planeCrop.left * pixelStride)
+                (row + planeCrop.top) * rowStride + planeCrop.left * pixelStride
+            )
 
             if (pixelStride == 1 && outputStride == 1) {
                 // When there is a single stride value for pixel and output, we can just copy
