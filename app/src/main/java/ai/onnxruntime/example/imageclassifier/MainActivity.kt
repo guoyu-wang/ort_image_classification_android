@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readModel(): ByteArray {
-        return resources.openRawResource(R.raw.mobilenet_v2).readBytes();
+        return resources.openRawResource( R.raw.mobilenet_v2_uint8 /* Add model file here */).readBytes();
     }
 
     private fun readLabels(): List<String> {
@@ -143,6 +143,7 @@ class MainActivity : AppCompatActivity() {
 
         try {
             ortSessionOptions.setIntraOpNumThreads(2)
+            ortSessionOptions.addConfigEntry("session.load_model_format", "ORT")
 
             if (enableNNAPI) {
                 ortSessionOptions.addNnapi()
