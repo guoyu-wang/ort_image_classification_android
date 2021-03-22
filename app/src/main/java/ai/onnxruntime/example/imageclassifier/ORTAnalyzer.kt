@@ -13,14 +13,14 @@ import kotlin.math.exp
 
 
 internal data class Result(
-        var detectedIndices: List<Int> = emptyList(),
-        var detectedScore: MutableList<Float> = mutableListOf<Float>(),
-        var processTimeMs: Long = 0
+    var detectedIndices: List<Int> = emptyList(),
+    var detectedScore: MutableList<Float> = mutableListOf<Float>(),
+    var processTimeMs: Long = 0
 ) {}
 
 internal class ORTAnalyzer(
-        private val ortSession: OrtSession?,
-        private val callBack: (Result) -> Unit
+    private val ortSession: OrtSession?,
+    private val callBack: (Result) -> Unit
 ) : ImageAnalysis.Analyzer {
 
     // Get index of top 3 values

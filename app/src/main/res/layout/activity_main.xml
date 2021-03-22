@@ -150,11 +150,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
-                android:text="Enable NNAPI"
+                android:text="Enable Quantized Model"
                 android:textSize="16sp" />
 
             <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/enable_nnapi_toggle"
+                android:id="@+id/enable_quantizedmodel_toggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="right"

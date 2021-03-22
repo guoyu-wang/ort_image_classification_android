@@ -20,12 +20,11 @@ import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
     private val backgroundExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
-    private val modelData: ByteArray by lazy { readModel() }
     private val labelData: List<String> by lazy { readLabels() }
 
     private var imageCapture: ImageCapture? = null
     private var imageAnalysis: ImageAnalysis? = null
-    private var enableNNAPI: Boolean = false
+    private var enableQuantizedModel: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +37,8 @@ class MainActivity : AppCompatActivity() {
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        enable_nnapi_toggle.setOnCheckedChangeListener { _, isChecked ->
-            enableNNAPI = isChecked
+        enable_quantizedmodel_toggle.setOnCheckedChangeListener { _, isChecked ->
+            enableQuantizedModel = isChecked
             imageAnalysis?.clearAnalyzer()
             imageAnalysis?.setAnalyzer(backgroundExecutor, ORTAnalyzer(CreateOrtSession(), ::updateUI))
         }
@@ -130,7 +129,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readModel(): ByteArray {
-        return resources.openRawResource( R.raw.mobilenet_v2_uint8 /* Add model file here */).readBytes();
+        // Get model file resource id here
+        val modelID = if (enableQuantizedModel) R.raw.mobilenet_v2_uint8 else R.raw.mobilenet_v2_float
+        return resources.openRawResource(modelID /* Add model file resource id here*/).readBytes();
     }
 
     private fun readLabels(): List<String> {
@@ -138,17 +139,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun CreateOrtSession(): OrtSession? {
+        val modelData = readModel()
         val env = OrtEnvironment.getEnvironment(OrtLoggingLevel.ORT_LOGGING_LEVEL_FATAL)
         var ortSessionOptions = SessionOptions()
 
         try {
             ortSessionOptions.setIntraOpNumThreads(2)
             ortSessionOptions.addConfigEntry("session.load_model_format", "ORT")
-
-            if (enableNNAPI) {
-                ortSessionOptions.addNnapi()
-            }
-
             return env.createSession(modelData, ortSessionOptions)
         } catch (exc: Exception) {
             Log.e(TAG, "Create ORT session failed", exc)
