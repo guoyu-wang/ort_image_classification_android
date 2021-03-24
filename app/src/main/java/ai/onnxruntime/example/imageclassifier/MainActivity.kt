@@ -161,8 +161,6 @@ class MainActivity : AppCompatActivity() {
                 return env.createSession(modelData, so)
             }
         }
-
-        return null
     }
 
     companion object {
