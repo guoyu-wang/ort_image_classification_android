@@ -24,7 +24,8 @@ internal class ORTAnalyzer(
 ) : ImageAnalysis.Analyzer {
 
     // Get index of top 3 values
-    private fun argMax(labelVals: FloatArray): List<Int> {
+    // This is for demo purpose only, there are more efficient algorithms for topK problems
+    private fun getTop3(labelVals: FloatArray): List<Int> {
         var indices = mutableListOf<Int>()
         for (k in 0..2) {
             var max: Float = 0.0f
@@ -88,7 +89,7 @@ internal class ORTAnalyzer(
                 @Suppress("UNCHECKED_CAST")
                 val rawOutput = ((output?.get(0)?.value) as Array<FloatArray>)[0]
                 val probabilities = softMax(rawOutput)
-                result.detectedIndices = argMax(probabilities)
+                result.detectedIndices = getTop3(probabilities)
                 for (idx in result.detectedIndices) {
                     result.detectedScore.add(probabilities[idx])
                 }
