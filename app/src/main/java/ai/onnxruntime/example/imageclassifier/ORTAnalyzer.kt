@@ -81,21 +81,23 @@ internal class ORTAnalyzer(
             val inputName = ortSession?.inputNames?.iterator()?.next()
             var result = Result()
             val shape = longArrayOf(1, 3, 224, 224)
-            val tensor = OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), imgData, shape)
-            val startTime = SystemClock.uptimeMillis()
-            try {
-                val output = ortSession?.run(Collections.singletonMap(inputName, tensor))
-                result.processTimeMs = SystemClock.uptimeMillis() - startTime
-                @Suppress("UNCHECKED_CAST")
-                val rawOutput = ((output?.get(0)?.value) as Array<FloatArray>)[0]
-                val probabilities = softMax(rawOutput)
-                result.detectedIndices = getTop3(probabilities)
-                for (idx in result.detectedIndices) {
-                    result.detectedScore.add(probabilities[idx])
+            val env = OrtEnvironment.getEnvironment()
+            env.use {
+                val tensor = OnnxTensor.createTensor(env, imgData, shape)
+                val startTime = SystemClock.uptimeMillis()
+                tensor.use {
+                    val output = ortSession?.run(Collections.singletonMap(inputName, tensor))
+                    output.use {
+                        result.processTimeMs = SystemClock.uptimeMillis() - startTime
+                        @Suppress("UNCHECKED_CAST")
+                        val rawOutput = ((output?.get(0)?.value) as Array<FloatArray>)[0]
+                        val probabilities = softMax(rawOutput)
+                        result.detectedIndices = getTop3(probabilities)
+                        for (idx in result.detectedIndices) {
+                            result.detectedScore.add(probabilities[idx])
+                        }
+                    }
                 }
-                output.close()
-            } finally {
-                tensor.close()
             }
 
             callBack(result)

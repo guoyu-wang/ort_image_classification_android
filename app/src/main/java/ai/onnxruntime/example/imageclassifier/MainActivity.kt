@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             imageAnalysis?.clearAnalyzer()
             imageAnalysis?.setAnalyzer(
                 backgroundExecutor,
-                ORTAnalyzer(CreateOrtSession(), ::updateUI)
+                ORTAnalyzer(createOrtSession(), ::updateUI)
             )
         }
     }
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
-                    it.setAnalyzer(backgroundExecutor, ORTAnalyzer(CreateOrtSession(), ::updateUI))
+                    it.setAnalyzer(backgroundExecutor, ORTAnalyzer(createOrtSession(), ::updateUI))
                 }
 
             try {
@@ -150,20 +150,16 @@ class MainActivity : AppCompatActivity() {
         return resources.openRawResource(R.raw.labels).bufferedReader().readLines()
     }
 
-    private fun CreateOrtSession(): OrtSession? {
+    private fun createOrtSession(): OrtSession? {
         val modelData = readModel()
         val env = OrtEnvironment.getEnvironment(OrtLoggingLevel.ORT_LOGGING_LEVEL_FATAL)
-        var ortSessionOptions = SessionOptions()
-
-        try {
-            ortSessionOptions.setIntraOpNumThreads(2)
-            ortSessionOptions.addConfigEntry("session.load_model_format", "ORT")
-            return env.createSession(modelData, ortSessionOptions)
-        } catch (exc: Exception) {
-            Log.e(TAG, "Create ORT session failed", exc)
-        } finally {
-            env.close()
-            ortSessionOptions.close()
+        val so = SessionOptions()
+        env.use {
+            so.use {
+                so.setIntraOpNumThreads(2)
+                so.addConfigEntry("session.load_model_format", "ORT")
+                return env.createSession(modelData, so)
+            }
         }
 
         return null
