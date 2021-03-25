@@ -1,9 +1,6 @@
 package ai.onnxruntime.example.imageclassifier
 
-import ai.onnxruntime.OrtEnvironment
-import ai.onnxruntime.OrtLoggingLevel
-import ai.onnxruntime.OrtSession
-import ai.onnxruntime.OrtSession.SessionOptions
+import ai.onnxruntime.*
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -153,7 +150,7 @@ class MainActivity : AppCompatActivity() {
     private fun createOrtSession(): OrtSession? {
         val modelData = readModel()
         val env = OrtEnvironment.getEnvironment(OrtLoggingLevel.ORT_LOGGING_LEVEL_FATAL)
-        val so = SessionOptions()
+        val so = OrtSession.SessionOptions()
         env.use {
             so.use {
                 so.setIntraOpNumThreads(2)

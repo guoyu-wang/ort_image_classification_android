@@ -1,8 +1,6 @@
 package ai.onnxruntime.example.imageclassifier
 
-import ai.onnxruntime.OnnxTensor
-import ai.onnxruntime.OrtEnvironment
-import ai.onnxruntime.OrtSession
+import ai.onnxruntime.*
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.SystemClock
