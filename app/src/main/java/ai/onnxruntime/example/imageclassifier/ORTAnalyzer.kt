@@ -75,9 +75,9 @@ internal class ORTAnalyzer(
         val bitmap = rawBitmap?.rotate(image.imageInfo.rotationDegrees.toFloat())
 
         if (bitmap != null) {
+            var result = Result()
             val imgData = preProcess(bitmap)
             val inputName = ortSession?.inputNames?.iterator()?.next()
-            var result = Result()
             val shape = longArrayOf(1, 3, 224, 224)
             val env = OrtEnvironment.getEnvironment()
             env.use {
